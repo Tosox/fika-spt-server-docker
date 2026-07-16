@@ -66,7 +66,6 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
             --self-contained false \
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -p:PublishSingleFile=false \
-            -p:AssemblyName=SPT.Server.Linux \
             -p:SptBuildType="${SPT_BUILD_TYPE}" \
             -p:SptVersion="${SPT_VERSION_NUM}" \
             -p:SptBuildTime="${SPT_BUILD_TIME}" \
@@ -78,6 +77,12 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     fi
 
 # Step 4: Move files to /opt/build
+# The ARM64 leg renames the apphost: the csproj only sets AssemblyName to
+# SPT.Server.Linux for linux-x64, so an arm64 publish yields SPT.Server, which the
+# entrypoint never runs. AssemblyName can't be overridden on the command line, as a
+# global property renames the referenced libraries too ("Ambiguous project name").
+# The apphost resolves its managed dll by an embedded name, not by its own filename,
+# so the rename is safe and SPT.Server.dll stays put for the entrypoint version check.
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         echo "=== AMD64: Moving extracted files ===" && \
         mkdir -p /opt/build && \
@@ -88,7 +93,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         PUBLISH_DIR=$(find spt/SPTarkov.Server/bin -type d -name "publish" | head -1) && \
         echo "Found publish directory: ${PUBLISH_DIR}" && \
         rm -f ${PUBLISH_DIR}/*.pdb && \
-        mv ${PUBLISH_DIR}/* /opt/build/; \
+        mv ${PUBLISH_DIR}/* /opt/build/ && \
+        mv /opt/build/SPT.Server /opt/build/SPT.Server.Linux && \
+        chmod +x /opt/build/SPT.Server.Linux; \
     fi
 
 # Step 5: Cleanup

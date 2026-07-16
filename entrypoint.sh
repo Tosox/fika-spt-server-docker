@@ -140,10 +140,7 @@ validate() {
 
     if [[ -d $spt_data_dir ]]; then
         # Grab version from binary using exiftool
-        # Read the Linux assembly, not SPT.Server.dll: that one only ships in the
-        # official archive because it merges the win-x64 publish output, and the
-        # arm64 image builds Linux only.
-        existing_spt_version=$(exiftool -s -s -s -ProductVersion $spt_dir/$spt_binary.dll | cut -d '-' -f 1)
+        existing_spt_version=$(exiftool -s -s -s -ProductVersion $spt_dir/SPT.Server.dll | cut -d '-' -f 1)
         if [[ -n ${force_spt_version} ]]; then
             # Force download SPT archive and install, do not backup or validate
             install_spt
