@@ -3,7 +3,10 @@
 # - ARM64: Compiles from source (necessary for ARM support)
 
 # Stage 1: Download pre-compiled binaries for AMD64 OR build from source for ARM64
-FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS builder
+# Pinned to BUILDPLATFORM so the ARM64 leg cross-compiles natively instead of
+# running the SDK under QEMU. The publish is framework-dependent, so targeting
+# linux-arm64 from an amd64 SDK needs nothing but the host pack from NuGet.
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS builder
 
 ARG SPT_VERSION=4.0.13-40087-2891fd4
 ARG TARGETARCH
@@ -58,15 +61,17 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
         ls -la ./SPTarkov.Server/ && \
         dotnet publish ./SPTarkov.Server/SPTarkov.Server.csproj \
             -c "${SPT_BUILD_CONFIG}" \
+            -f net9.0 \
             -r linux-arm64 \
             --self-contained false \
             -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:PublishSingleFile=false \
+            -p:AssemblyName=SPT.Server.Linux \
             -p:SptBuildType="${SPT_BUILD_TYPE}" \
             -p:SptVersion="${SPT_VERSION_NUM}" \
             -p:SptBuildTime="${SPT_BUILD_TIME}" \
             -p:SptCommit="${SPT_COMMIT}" \
-            -p:IsPublish=true \
-            -p:LangVersion=preview && \
+            -p:IsPublish=true && \
         echo "Build completed, checking output..." && \
         find SPTarkov.Server/bin -type d -name "publish" && \
         cd ..; \

@@ -14,9 +14,10 @@ That's it! The image has everything else you need to run an SPT Server, with Fik
 >
 > If you wish to use the LTS version of SPT (3.11.4), make sure you specify the image tag `fika-spt-server-docker:3.11.4` explicitly instead of using `latest`)
 
-> [!WARNING]
-> For users attempting to run version 4.0.0 of this docker image on ARM64 platform (i.e. Raspberry Pi), please note that this image will fail to run currently.
-> Please see [this issue](https://github.com/zhliau/fika-spt-server-docker/issues/33) for more information
+> [!NOTE]
+> ARM64 (i.e. Raspberry Pi) is supported. Since SPT publishes release archives for x86_64 only, the ARM64 image is compiled from the SPT source at
+> build time. One consequence: `FORCE_SPT_VERSION` is x86_64 only, as there is no published ARM64 archive to pull.
+> See [this issue](https://github.com/zhliau/fika-spt-server-docker/issues/33) for background.
 
 - [🪄 Features](#-features)
 - [🥡 Releases](#-releases)

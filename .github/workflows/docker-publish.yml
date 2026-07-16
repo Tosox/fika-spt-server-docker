@@ -5,10 +5,11 @@ name: Docker
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# Release tags are published by docker-publish-multiarch.yml, which builds amd64
+# and arm64 into a single manifest. This workflow is an amd64-only build check for
+# PRs; it must not trigger on tags or both workflows would push the same tag and
+# the loser's manifest would be clobbered.
 on:
-  push:
-    # Publish semver tags as releases.
-    tags: [ '*.*.*' ]
   pull_request:
     branches: [ "master" ]
 

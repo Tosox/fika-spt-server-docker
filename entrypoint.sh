@@ -140,7 +140,10 @@ validate() {
 
     if [[ -d $spt_data_dir ]]; then
         # Grab version from binary using exiftool
-        existing_spt_version=$(exiftool -s -s -s -ProductVersion $spt_dir/SPT.Server.dll | cut -d '-' -f 1)
+        # Read the Linux assembly, not SPT.Server.dll: that one only ships in the
+        # official archive because it merges the win-x64 publish output, and the
+        # arm64 image builds Linux only.
+        existing_spt_version=$(exiftool -s -s -s -ProductVersion $spt_dir/$spt_binary.dll | cut -d '-' -f 1)
         if [[ -n ${force_spt_version} ]]; then
             # Force download SPT archive and install, do not backup or validate
             install_spt
@@ -276,6 +279,15 @@ install_spt() {
     # If FORCE_SPT_VERSION is set and archive does not exist, download and override the built in version with provided version
     # Archive stored in root mounted folder
     if [[ -n ${force_spt_version} ]]; then
+        # Official release archives are x86_64 only. On other arches this image
+        # compiles SPT from source at build time, so there is nothing to force to.
+        if [[ "$(uname -m)" != "x86_64" ]]; then
+            echo "FORCE_SPT_VERSION is not supported on $(uname -m)."
+            echo "Official SPT release archives are published for x86_64 only, and this image"
+            echo "compiles SPT from source for this architecture instead."
+            echo "Unset FORCE_SPT_VERSION to use the SPT $spt_version built into this image."
+            exit 1
+        fi
         echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         echo "!! Forcing SPT version to $force_spt_version     !!"
         echo "!! SPT auto-update is disabled                    !!"
