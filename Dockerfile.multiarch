@@ -96,8 +96,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         rm -f ${PUBLISH_DIR}/*.pdb && \
         mv ${PUBLISH_DIR}/* /opt/build/ && \
         mv /opt/build/SPT.Server /opt/build/SPT.Server.Linux && \
-        chmod +x /opt/build/SPT.Server.Linux; \
-        cp -r /opt/build/wwwroot/. /opt/build/SPT_Data/wwwroot/; \
+        chmod +x /opt/build/SPT.Server.Linux; && \
+        mv /opt/build/wwwroot/* /opt/build/SPT_Data/wwwroot/ && \
+        rm -rf /opt/build/wwwroot; \
     fi
 
 # Step 5: Cleanup
