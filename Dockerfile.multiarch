@@ -87,17 +87,17 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         echo "=== AMD64: Moving extracted files ===" && \
         mkdir -p /opt/build && \
-        mv SPT/* /opt/build/; \
+        mv SPT /opt/build/SPT; \
     else \
         echo "=== ARM64: Moving compiled files ===" && \
-        mkdir -p /opt/build && \
+        mkdir -p /opt/build/SPT && \
         PUBLISH_DIR=$(find spt/SPTarkov.Server/bin -type d -name "publish" | head -1) && \
         echo "Found publish directory: ${PUBLISH_DIR}" && \
         rm -f ${PUBLISH_DIR}/*.pdb && \
-        mv ${PUBLISH_DIR}/* /opt/build/ && \
-        mv /opt/build/SPT.Server /opt/build/SPT.Server.Linux && \
-        chmod +x /opt/build/SPT.Server.Linux && \
-        mv /opt/build/wwwroot /opt/build/SPT_Data/wwwroot; \
+        mv ${PUBLISH_DIR}/* /opt/build/SPT/ && \
+        mv /opt/build/SPT/SPT.Server /opt/build/SPT/SPT.Server.Linux && \
+        chmod +x /opt/build/SPT/SPT.Server.Linux && \
+        mv /opt/build/SPT/wwwroot /opt/build/SPT/SPT_Data/wwwroot; \
     fi
 
 # Step 5: Cleanup
